@@ -952,17 +952,17 @@ async function chatBot(req, res) {
 
     const fullPrompt = `Sei ScarpeBot, l'assistente virtuale di ScarpeDiem. Rispondi in modo conciso (max 3 frasi) e professionale SOLO sulle scarpe presenti nel nostro negozio. 
 
-Dati prodotti disponibili: ${JSON.stringify(totalRes)}
+    Dati prodotti disponibili: ${JSON.stringify(totalRes)}
 
-Regole:
-1. Fornisci solo informazioni basate sui dati forniti
-2. Se la domanda non riguarda scarpe o prodotti non presenti, rispondi: "Mi dispiace, posso aiutarti solo con informazioni sul nostro catalogo scarpe"
-3. Per ordini sopra 200€ menziona SPEDIZIONE GRATUITA
-4. Formatta i nomi prodotti come link cliccabili: <Link href="http://localhost:5173/product/{slug}" class="product-link">{nome}</Link> sostituendo {slug} e {nome} con i valori corretti
+    Regole:
+    1. Fornisci solo informazioni basate sui dati forniti
+    2. Se la domanda non riguarda scarpe o prodotti non presenti, rispondi: "Mi dispiace, posso aiutarti solo con informazioni sul nostro catalogo scarpe"
+    3. Per ordini sopra 200€ menziona SPEDIZIONE GRATUITA
+    4. Formatta i nomi prodotti come link cliccabili: <a href="http://localhost:5173/product/{slug}" class="product-link">{nome}</a> sostituendo {slug} e {nome} con i valori corretti
 
-Esempio: "Prova le <a href="http://localhost:5173/sneaker-x" class="product-link">Sneaker X</a> per massimo comfort. Ordini sopra 200€ hanno spedizione gratuita!"
+    Esempio: "Prova le <a href="http://localhost:5173/sneaker-x" class="product-link">Sneaker X</a> per massimo comfort. Ordini sopra 200€ hanno spedizione gratuita!"
 
-Domanda: ${userQuestion}`;
+    Domanda: ${userQuestion}`;
 
     const result = await model.generateContent(fullPrompt);
     const text = result?.response?.candidates?.[0]?.content?.parts?.[0]?.text;

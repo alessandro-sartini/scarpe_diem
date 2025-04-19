@@ -1,6 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import parse, { domToReact } from "html-react-parser";
+import { IoMdSend } from "react-icons/io";
+import chatBot from "/graphics/chatBot.jpeg";
+import sendGif from "/graphics/send2.gif";
 export default function ChatBotToggle() {
+  const end = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([
@@ -48,25 +52,32 @@ export default function ChatBotToggle() {
         setIsLoading(false);
       }
     }
-    };
-    
-    // ! personalizzo i link
-const options = {
-  replace: (domNode) => {
-    if (domNode.name === "a" && domNode.attribs) {
-      return (
-        <a
-          href={domNode.attribs.href}
-          className={domNode.attribs.class}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {domToReact(domNode.children)}
-        </a>
-      );
-    }
-  },
-};
+  };
+
+  const scroll = () => {
+    end.current?.scrollIntoView({ behavior: "smooth" });
+  };
+  useEffect(() => {
+    scroll();
+  }, [messages]);
+
+  // ! personalizzo i link
+  const options = {
+    replace: (domNode) => {
+      if (domNode.name === "a" && domNode.attribs) {
+        return (
+          <a
+            href={domNode.attribs.href}
+            className={domNode.attribs.class}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {domToReact(domNode.children)}
+          </a>
+        );
+      }
+    },
+  };
   useEffect(() => {
     console.log("Chatbot is now", isOpen ? "open" : "closed");
   }, [isOpen]);
@@ -74,8 +85,9 @@ const options = {
   return (
     <>
       <div>
-        <button className="chatBotBtn" onClick={() => setIsOpen(!isOpen)}>
-        <img src="/graphics/chatBot.jpeg" alt="Chatbot" />        </button>
+        <button className="" onClick={() => setIsOpen(!isOpen)}>
+          <img src={chatBot} alt="ScarpeBot" className="chatBotBtn" />
+        </button>
       </div>
 
       <div className={`chatBot ${isOpen ? "open" : ""}`}>
@@ -87,6 +99,7 @@ const options = {
                 {parse(msg.text, options)}
               </div>
             ))}
+            <div ref={end} />
             {isLoading && <div className="message bot">Sto pensando...</div>}
           </div>
           <div className="chat-input">
@@ -99,7 +112,11 @@ const options = {
               disabled={isLoading}
             />
             <button onClick={handleSendMessage} disabled={isLoading}>
-              Send
+              {isLoading ? (
+                <img src={sendGif} alt="Send Gif" className="send-gif" />
+              ) : (
+                <IoMdSend color="black" size={18} />
+              )}
             </button>
           </div>
         </div>
