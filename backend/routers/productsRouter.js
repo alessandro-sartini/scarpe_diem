@@ -36,6 +36,8 @@ router.get("/category", productController.category);
 router.get("/coupons", productController.getCoupon);
 // route -> show
 router.get("/:slug", productController.show);
+// post gemini
+router.post("/chatBot", productController.chatBot);
 
 //Rotta per creazione nuovo ordine
 router.post("/orders", productController.store);
@@ -48,5 +50,7 @@ router.post("/checkout", productController.checkout);
 
 //update prezzo totale
 router.put("/update-orders", productController.update);
+
+
 
 export default router;

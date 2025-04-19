@@ -1,4 +1,5 @@
 import connection from "../data/db.js";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 import nodemailer from "nodemailer";
 
@@ -117,7 +118,9 @@ function category(req, res) {
 
 // Nuova funzione -> bestsellers (prodotti più venduti)
 function bestsellers(req, res) {
-  const searchMethod = `%${req.query.name || req.query.name_category || req.query.name_brand || ""}%`;
+  const searchMethod = `%${
+    req.query.name || req.query.name_category || req.query.name_brand || ""
+  }%`;
   const sql = `
     SELECT p.name AS Prodotto, p.image AS Immagine, p.price AS Prezzo, p.slug AS slug, c.name_category, b.name_brand, SUM(po.product_quantity) AS Totale_Vendite 
     FROM product_order po 
@@ -130,20 +133,24 @@ function bestsellers(req, res) {
     LIMIT 6;
   `;
 
-  connection.query(sql, [searchMethod, searchMethod, searchMethod], (err, response) => {
-    if (err) {
-      console.error("Database error:", err);
-      return res.status(500).json({ error: "Database error" });
+  connection.query(
+    sql,
+    [searchMethod, searchMethod, searchMethod],
+    (err, response) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ error: "Database error" });
+      }
+      if (response.length === 0) {
+        return res.status(404).json({ error: "Bestsellers not found" });
+      }
+      const totalRes = response.map((i) => ({
+        ...i,
+        Immagine: req.imagePath + i.Immagine,
+      }));
+      res.json(totalRes);
     }
-    if (response.length === 0) {
-      return res.status(404).json({ error: "Bestsellers not found" });
-    }
-    const totalRes = response.map((i) => ({
-      ...i,
-      Immagine: req.imagePath + i.Immagine,
-    }));
-    res.json(totalRes);
-  });
+  );
 }
 
 // Nuova funzione -> bestseller (prodotto più venduto)
@@ -184,7 +191,9 @@ function newarrivals(req, res) {
   const formattedDateNow = now.toISOString().split("T")[0];
   const formattedDateTwoMonthsAgo = twoMonthsAgo.toISOString().split("T")[0];
 
-  const searchMethod = `%${req.query.name || req.query.name_category || req.query.name_brand || ""}%`;
+  const searchMethod = `%${
+    req.query.name || req.query.name_category || req.query.name_brand || ""
+  }%`;
   const sql = `
     SELECT p.slug, p.name AS Prodotto, p.image AS Immagine, p.price AS Prezzo, c.name_category, b.name_brand, p.insert_date 
     FROM products p 
@@ -194,20 +203,30 @@ function newarrivals(req, res) {
     ORDER BY p.insert_date DESC;
   `;
 
-  connection.query(sql, [formattedDateTwoMonthsAgo, formattedDateNow, searchMethod, searchMethod, searchMethod], (err, response) => {
-    if (err) {
-      console.error("Database error:", err);
-      return res.status(500).json({ error: "Database error" });
+  connection.query(
+    sql,
+    [
+      formattedDateTwoMonthsAgo,
+      formattedDateNow,
+      searchMethod,
+      searchMethod,
+      searchMethod,
+    ],
+    (err, response) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ error: "Database error" });
+      }
+      if (response.length === 0) {
+        return res.status(404).json({ error: "Newarrivals not found" });
+      }
+      const totalRes = response.map((i) => ({
+        ...i,
+        Immagine: req.imagePath + i.Immagine,
+      }));
+      res.json(totalRes);
     }
-    if (response.length === 0) {
-      return res.status(404).json({ error: "Newarrivals not found" });
-    }
-    const totalRes = response.map((i) => ({
-      ...i,
-      Immagine: req.imagePath + i.Immagine,
-    }));
-    res.json(totalRes);
-  });
+  );
 }
 
 // Nuova funzione -> newarrival (ultimo arrivo)
@@ -388,8 +407,9 @@ function related(req, res) {
 //funzione search
 function search(req, res) {
   // const searchMethod = req.query.name ? `%${req.query.name}%` : '%';;
-  const searchMethod = `%${req.query.name || req.query.name_category || req.query.name_brand
-    }%`;
+  const searchMethod = `%${
+    req.query.name || req.query.name_category || req.query.name_brand
+  }%`;
 
   const sql =
     "SELECT p.*, c.name_category, b.name_brand FROM products p JOIN categories c ON c.id = p.category_id JOIN brands b ON b.id = p.brand_id WHERE p.name LIKE ? OR c.name_category LIKE ? OR b.name_brand LIKE ?";
@@ -440,7 +460,6 @@ function getCoupon(req, res) {
   });
 }
 
-
 function checkout(req, res) {
   let dati = req.body;
   let totale = 0;
@@ -469,27 +488,46 @@ function checkout(req, res) {
   }
 
   // Validazione indirizzi
-  if (!dati.indirizzo_spedizione || dati.indirizzo_spedizione.trim().length < 10) {
-    return res.status(400).json({ error: "Indirizzo di spedizione non valido o troppo breve" });
+  if (
+    !dati.indirizzo_spedizione ||
+    dati.indirizzo_spedizione.trim().length < 10
+  ) {
+    return res
+      .status(400)
+      .json({ error: "Indirizzo di spedizione non valido o troppo breve" });
   }
 
-  if (!dati.indirizzo_pagamento || dati.indirizzo_pagamento.trim().length < 10) {
-    return res.status(400).json({ error: "Indirizzo di fatturazione non valido o troppo breve" });
+  if (
+    !dati.indirizzo_pagamento ||
+    dati.indirizzo_pagamento.trim().length < 10
+  ) {
+    return res
+      .status(400)
+      .json({ error: "Indirizzo di fatturazione non valido o troppo breve" });
   }
 
   // Validazione carrello
-  if (!dati.carrello || !Array.isArray(dati.carrello) || dati.carrello.length === 0) {
+  if (
+    !dati.carrello ||
+    !Array.isArray(dati.carrello) ||
+    dati.carrello.length === 0
+  ) {
     return res.status(400).json({ error: "Il carrello è vuoto o non valido" });
   }
 
   // Validazione di ogni prodotto nel carrello
   for (let i = 0; i < dati.carrello.length; i++) {
     const prodotto = dati.carrello[i];
-    if (!prodotto.id || !prodotto.prezzo || !prodotto.quantita || !prodotto.size_id) {
+    if (
+      !prodotto.id ||
+      !prodotto.prezzo ||
+      !prodotto.quantita ||
+      !prodotto.size_id
+    ) {
       return res.status(400).json({
         error: "Dati prodotto incompleti",
         prodotto_index: i,
-        prodotto: prodotto
+        prodotto: prodotto,
       });
     }
 
@@ -497,7 +535,7 @@ function checkout(req, res) {
       return res.status(400).json({
         error: "Quantità o prezzo non validi",
         prodotto_index: i,
-        prodotto: prodotto
+        prodotto: prodotto,
       });
     }
   }
@@ -533,7 +571,9 @@ function checkout(req, res) {
   function iniziaTransazione() {
     connection.beginTransaction((err) => {
       if (err)
-        return res.status(500).json({ error: "Errore nell'avvio della transazione" });
+        return res
+          .status(500)
+          .json({ error: "Errore nell'avvio della transazione" });
 
       if (couponCode) {
         let sqlCoupon =
@@ -541,7 +581,9 @@ function checkout(req, res) {
         connection.query(sqlCoupon, [couponCode], (err, results) => {
           if (err) {
             return connection.rollback(() => {
-              res.status(500).json({ error: "Errore nella verifica del coupon" });
+              res
+                .status(500)
+                .json({ error: "Errore nella verifica del coupon" });
             });
           }
 
@@ -577,7 +619,9 @@ function checkout(req, res) {
     connection.query(sqlOrdine, valoriOrdine, (err, risultato) => {
       if (err) {
         return connection.rollback(() => {
-          res.status(500).json({ error: "Errore nell'inserimento dell'ordine" });
+          res
+            .status(500)
+            .json({ error: "Errore nell'inserimento dell'ordine" });
         });
       }
 
@@ -626,41 +670,61 @@ function checkout(req, res) {
     let queryCompletate = 0;
     for (let i = 0; i < dati.carrello.length; i++) {
       let prodotto = dati.carrello[i];
-      let sqlVerifica = "SELECT quantity FROM product_size WHERE product_id = ? AND size_id = ?";
-      connection.query(sqlVerifica, [prodotto.id, prodotto.size_id], (err, results) => {
-        if (err || results.length === 0) {
-          errori = true;
-          return completaQuery();
+      let sqlVerifica =
+        "SELECT quantity FROM product_size WHERE product_id = ? AND size_id = ?";
+      connection.query(
+        sqlVerifica,
+        [prodotto.id, prodotto.size_id],
+        (err, results) => {
+          if (err || results.length === 0) {
+            errori = true;
+            return completaQuery();
+          }
+          const disponibile = results[0].quantity;
+          if (disponibile < prodotto.quantita) {
+            errori = true;
+            return completaQuery();
+          }
+          let sqlUpdate =
+            "UPDATE product_size SET quantity = quantity - ? WHERE product_id = ? AND size_id = ?";
+          connection.query(
+            sqlUpdate,
+            [prodotto.quantita, prodotto.id, prodotto.size_id],
+            (err) => {
+              if (err) errori = true;
+              completaQuery();
+            }
+          );
         }
-        const disponibile = results[0].quantity;
-        if (disponibile < prodotto.quantita) {
-          errori = true;
-          return completaQuery();
-        }
-        let sqlUpdate = "UPDATE product_size SET quantity = quantity - ? WHERE product_id = ? AND size_id = ?";
-        connection.query(sqlUpdate, [prodotto.quantita, prodotto.id, prodotto.size_id], (err) => {
-          if (err) errori = true;
-          completaQuery();
-        });
-      });
+      );
     }
 
     function completaQuery() {
       queryCompletate++;
-      console.log("completaQuery chiamata:", queryCompletate, "/", dati.carrello.length);
+      console.log(
+        "completaQuery chiamata:",
+        queryCompletate,
+        "/",
+        dati.carrello.length
+      );
       if (queryCompletate === dati.carrello.length) {
         if (errori) {
           return connection.rollback(() => {
             res.status(500).json({
-              error: "Errore nell'aggiornamento delle quantità o prodotto non disponibile",
+              error:
+                "Errore nell'aggiornamento delle quantità o prodotto non disponibile",
             });
           });
         }
-        console.log("Tutte le quantità aggiornate correttamente, procedo con commit");
+        console.log(
+          "Tutte le quantità aggiornate correttamente, procedo con commit"
+        );
         connection.commit(async (err) => {
           if (err) {
             return connection.rollback(() => {
-              res.status(500).json({ error: "Errore nel completamento dell'ordine" });
+              res
+                .status(500)
+                .json({ error: "Errore nel completamento dell'ordine" });
             });
           }
           try {
@@ -717,21 +781,30 @@ function checkout(req, res) {
     // Formattazione corretta degli indirizzi - rimuove virgole consecutive
     const formatIndirizzo = (indirizzo) => {
       // Rimuove spazi bianchi extra e sostituisce sequenze di virgole con una singola virgola
-      return indirizzo.trim().replace(/,\s*,+/g, ',').replace(/,\s*$/g, '');
+      return indirizzo
+        .trim()
+        .replace(/,\s*,+/g, ",")
+        .replace(/,\s*$/g, "");
     };
 
     const indirizzoSpedizioneFormattato = formatIndirizzo(indirizzoSpedizione);
-    const indirizzoFatturazioneFormattato = formatIndirizzo(indirizzoFatturazione);
+    const indirizzoFatturazioneFormattato = formatIndirizzo(
+      indirizzoFatturazione
+    );
 
     // HTML per l'email al cliente
     const prodottiHtml = carrello
-      .map(item => `
+      .map(
+        (item) => `
     <tr>
       <td>${item.nome || `Prodotto ${item.id}`}</td>
       <td style="text-align: center;">${item.quantita}</td>
-      <td style="text-align: right;">€${(item.prezzo * item.quantita).toFixed(2)}</td>
+      <td style="text-align: right;">€${(item.prezzo * item.quantita).toFixed(
+        2
+      )}</td>
     </tr>
-  `)
+  `
+      )
       .join("");
 
     const clienteHtml = `
@@ -761,11 +834,14 @@ function checkout(req, res) {
       </tbody>
     </table>
     <h3 style="text-align: right;">Totale: €${totale.toFixed(2)}</h3>
-    ${coupon && sconto ? `
+    ${
+      coupon && sconto
+        ? `
       <p style="text-align: right; color: green; font-weight: bold;">
         Coupon applicato: <strong>${coupon}</strong> (-${sconto}%)
-      </p>` : ""
-      }
+      </p>`
+        : ""
+    }
     <p>Ti contatteremo appena il tuo ordine sarà spedito.<br/>Grazie per aver scelto il nostro shop!</p>
     <p style="font-size: 0.9em; color: #777;">Email di test inviata da Mailtrap</p>
   </div>
@@ -789,7 +865,11 @@ function checkout(req, res) {
       <li><strong>Telefono:</strong> ${telefono}</li>
       <li><strong>Numero ordine:</strong> #${numeroOrdine}</li>
       <li><strong>Importo totale:</strong> €${totale.toFixed(2)}</li>
-      ${coupon ? `<li><strong>Coupon:</strong> ${coupon} (-${sconto}%)</li>` : ""}
+      ${
+        coupon
+          ? `<li><strong>Coupon:</strong> ${coupon} (-${sconto}%)</li>`
+          : ""
+      }
     </ul>
     
     <div style="background-color: #f8f8f8; padding: 15px; margin: 15px 0; border-radius: 5px;">
@@ -809,14 +889,20 @@ function checkout(req, res) {
         </tr>
       </thead>
       <tbody>
-        ${carrello.map(item => `
+        ${carrello
+          .map(
+            (item) => `
           <tr>
             <td>${item.nome || `Prodotto ${item.id}`}</td>
             <td style="text-align: center;">${item.quantita}</td>
             <td style="text-align: right;">€${item.prezzo}</td>
-            <td style="text-align: right;">€${(item.prezzo * item.quantita).toFixed(2)}</td>
+            <td style="text-align: right;">€${(
+              item.prezzo * item.quantita
+            ).toFixed(2)}</td>
           </tr>
-        `).join("")}
+        `
+          )
+          .join("")}
       </tbody>
     </table>
     <p>Si prega di procedere con la preparazione dell'ordine.</p>
@@ -841,6 +927,59 @@ function checkout(req, res) {
   }
 }
 
+async function chatBot(req, res) {
+  try {
+    const sql = "SELECT * FROM products";
+
+    const totalRes = await new Promise((resolve, reject) => {
+      connection.query(sql, (err, response) => {
+        if (err) {
+          return reject({
+            err: 500,
+            message: "Errore query index",
+          });
+        }
+
+        // Integrare immagine
+        const result = response.map((i) => ({
+          ...i,
+          image: req.imagePath + i.image,
+        }));
+
+        resolve(result);
+      });
+    });
+
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    const userQuestion = req.body.prompt;
+    if (!userQuestion) {
+      return res.status(400).json({ error: "La domanda è obbligatoria." });
+    }
+
+    const fullPrompt = `Sei un esperto di scarpe con anni di esperienza. Rispondi alle seguenti domande in modo esaustivo e professionale, senza divagare dall'argomento delle scarpe.\n\nDomanda: ${userQuestion}, prodotti a cui accedere: ${JSON.stringify(
+      totalRes
+    )}`;
+
+    const result = await model.generateContent(fullPrompt);
+    const text = result?.response?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (text) {
+      res.json({ response: text });
+    } else {
+      console.error("Risposta da Gemini:", result?.response);
+      res.status(500).json({ error: "Nessuna risposta valida da Gemini." });
+    }
+  } catch (error) {
+    console.error("Errore durante la chiamata a Gemini:", error);
+    res
+      .status(500)
+      .json({ error: "Errore durante la comunicazione con Gemini." });
+  }
+}
+
+
 
 export default {
   index,
@@ -858,4 +997,5 @@ export default {
   search,
   getCoupon,
   checkout,
+  chatBot,
 };
