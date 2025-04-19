@@ -4,6 +4,7 @@ import { useGlobalContext } from '../contexts/GlobalContext';
 import { useEffect } from 'react';
 import Hero from '../components/Hero';
 import HeroDiscount from '../components/HeroDiscount';
+import ChatBotToggle from '../components/chatBot/ChatBotToggle';
 
 export default function HomePage() {
   // global context values
@@ -45,6 +46,7 @@ export default function HomePage() {
         {categoryProducts ? <Carousel array={categoryProducts} topic="casual" /> : <p>Categoria non caricata</p>}
         {/* <Carousel array={mostSelled} /> */}
       </section>
+      <ChatBotToggle />
     </main>
   );
 }

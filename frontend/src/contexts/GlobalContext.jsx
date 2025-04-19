@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext } from "react";
 
 const GlobalContext = createContext();
 
@@ -15,7 +15,7 @@ const GlobalProvider = ({ children }) => {
   const [mostSelled, setMostSelled] = useState(null);
 
   const fetchMostSelled = () => {
-    fetch('http://localhost:3000/products/bestsellers')
+    fetch("http://localhost:3000/products/bestsellers")
       .then((response) => response.json())
       .then((data) => setMostSelled(data))
       .catch((error) => {
@@ -27,7 +27,7 @@ const GlobalProvider = ({ children }) => {
   const [categoryProducts, setCategoryProducts] = useState(null);
 
   const fetchCategoryProducts = () => {
-    fetch('http://localhost:3000/products/category?name_category=casual') // /category?category=running
+    fetch("http://localhost:3000/products/category?name_category=casual") // /category?category=running
       .then((response) => response.json())
       .then((data) => setCategoryProducts(data))
       .catch((error) => {
@@ -39,13 +39,13 @@ const GlobalProvider = ({ children }) => {
   const [mostSelledProduct, setMostSelledProduct] = useState(null);
 
   const fetchMostSelledProduct = () => {
-    fetch('http://localhost:3000/products/bestseller')
+    fetch("http://localhost:3000/products/bestseller")
       .then((response) => response.json())
       .then((data) => {
         setMostSelledProduct(data);
       })
       .catch((error) => {
-        console.error('Errore nel recupero del prodotto più venduto:', error);
+        console.error("Errore nel recupero del prodotto più venduto:", error);
       });
   };
 
@@ -53,7 +53,7 @@ const GlobalProvider = ({ children }) => {
   const [mostRecentProduct, setMostRecentProduct] = useState(null);
 
   const fetchMostRecentProduct = () => {
-    fetch('http://localhost:3000/products/newarrival')
+    fetch("http://localhost:3000/products/newarrival")
       .then((response) => response.json())
       .then((data) => setMostRecentProduct(data))
       .catch((error) => {
@@ -67,14 +67,14 @@ const GlobalProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
   // wishlist to local
   const setWishlistToLocal = () => {
-    const savedWishlist = JSON.parse(localStorage.getItem('wishlist'));
+    const savedWishlist = JSON.parse(localStorage.getItem("wishlist"));
     if (savedWishlist) {
       setWishlist(savedWishlist);
     }
   };
 
   const setCartToLocal = () => {
-    const savedCart = JSON.parse(localStorage.getItem('cart'));
+    const savedCart = JSON.parse(localStorage.getItem("cart"));
     if (savedCart) {
       setCart(savedCart);
     }
@@ -92,7 +92,10 @@ const GlobalProvider = ({ children }) => {
       // verificare se il prodotto esiste già nel carrello
 
       // check prima di tutto se esiste già in prevcart prodotto con stessa taglia
-      const existingProduct = prevCart?.find((prevProduct) => prevProduct.id == product.id && prevProduct.size_id == size_id);
+      const existingProduct = prevCart?.find(
+        (prevProduct) =>
+          prevProduct.id == product.id && prevProduct.size_id == size_id
+      );
 
       if (existingProduct) {
         const updatedProduct = {
@@ -100,7 +103,11 @@ const GlobalProvider = ({ children }) => {
           selectedQuantity: existingProduct.selectedQuantity + quantity,
         };
 
-        updatedNewCart = prevCart.filter((prevProduct) => prevProduct.id != existingProduct.id || prevProduct.size_id != existingProduct.size_id);
+        updatedNewCart = prevCart.filter(
+          (prevProduct) =>
+            prevProduct.id != existingProduct.id ||
+            prevProduct.size_id != existingProduct.size_id
+        );
 
         updatedNewCart.push(updatedProduct);
       } else {
@@ -117,10 +124,10 @@ const GlobalProvider = ({ children }) => {
       }
 
       if (updatedNewCart.length > 0) {
-        localStorage.setItem('cart', JSON.stringify(updatedNewCart));
+        localStorage.setItem("cart", JSON.stringify(updatedNewCart));
         return updatedNewCart;
       } else {
-        localStorage.setItem('cart', JSON.stringify(newCart));
+        localStorage.setItem("cart", JSON.stringify(newCart));
         return newCart;
       }
     });
@@ -131,33 +138,34 @@ const GlobalProvider = ({ children }) => {
       const updatedCart = prevCart.filter(
         (item) => item.id !== productId || item.size_id !== sizeId
       );
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
       return updatedCart;
     });
   };
-  
+
   const removeProductFromWishList = (productId, sizeId) => {
     setWishlist((prevWish) => {
       const updatedWish = prevWish.filter(
         (item) => item.id !== productId || item.size_id !== sizeId
       );
-      localStorage.setItem('wishlist', JSON.stringify(updatedWish));
+      localStorage.setItem("wishlist", JSON.stringify(updatedWish));
       return updatedWish;
     });
   };
 
-
   const removeFromWishlist = (productId) => {
-  setWishlist((prevWishlist) => {
-    const updatedWishlist = prevWishlist.filter((item) => item.id !== productId);
-    localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
-    return updatedWishlist;
-  });
-};
+    setWishlist((prevWishlist) => {
+      const updatedWishlist = prevWishlist.filter(
+        (item) => item.id !== productId
+      );
+      localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
+      return updatedWishlist;
+    });
+  };
 
-const isInWishlist = (productId) => {
-  return wishlist.some((item) => item.id === productId);
-};
+  const isInWishlist = (productId) => {
+    return wishlist.some((item) => item.id === productId);
+  };
   // add to wishlist
   // const addToWishlist = (product, size_id, quantity) => {
   //   setWishlist((prevWish) => {
@@ -181,7 +189,10 @@ const isInWishlist = (productId) => {
     let updateNewWishlist = [];
 
     setWishlist((prevWish) => {
-      const existingProduct = prevWish?.find((prevProduct) => prevProduct.id == product.id && prevProduct.size_id == size_id);
+      const existingProduct = prevWish?.find(
+        (prevProduct) =>
+          prevProduct.id == product.id && prevProduct.size_id == size_id
+      );
 
       if (existingProduct) {
         const updatedProduct = {
@@ -189,7 +200,11 @@ const isInWishlist = (productId) => {
           selectedQuantity: existingProduct.selectedQuantity + quantity,
         };
 
-        updateNewWishlist = prevWish.filter((prevProduct) => prevProduct.id != existingProduct.id || prevProduct.size_id != existingProduct.size_id);
+        updateNewWishlist = prevWish.filter(
+          (prevProduct) =>
+            prevProduct.id != existingProduct.id ||
+            prevProduct.size_id != existingProduct.size_id
+        );
 
         updateNewWishlist.push(updatedProduct);
       } else {
@@ -206,10 +221,10 @@ const isInWishlist = (productId) => {
       }
 
       if (updateNewWishlist.length > 0) {
-        localStorage.setItem('wishlist', JSON.stringify(updateNewWishlist));
+        localStorage.setItem("wishlist", JSON.stringify(updateNewWishlist));
         return updateNewWishlist;
       } else {
-        localStorage.setItem('wishlist', JSON.stringify(newWish));
+        localStorage.setItem("wishlist", JSON.stringify(newWish));
         return newWish;
       }
     });
@@ -217,12 +232,12 @@ const isInWishlist = (productId) => {
 
   const cleanCart = () => {
     setCart([]);
-    localStorage.removeItem('cart');
+    localStorage.removeItem("cart");
   };
 
   const cleanWishlist = () => {
     setWishlist([]);
-    localStorage.removeItem('wishlist');
+    localStorage.removeItem("wishlist");
   };
 
   // SIZES & QUANTITY PRODUCT PAGE
@@ -235,24 +250,26 @@ const isInWishlist = (productId) => {
     setFormData({ size: 0, quantity: 1 });
   };
 
- const productHandleMultiInput = (e, product, maxQuantity) => {
-  const { name, value } = e.target;
-  if (name === 'quantity') {
-    const newData = Math.min(value, maxQuantity);
-    setFormData(prev => ({ ...prev, [name]: newData }));
-  } else {
-    setFormData(prev => ({ ...prev, [name]: value, quantity: 1 }));
-  }
-};
+  const productHandleMultiInput = (e, product, maxQuantity) => {
+    const { name, value } = e.target;
+    if (name === "quantity") {
+      const newData = Math.min(value, maxQuantity);
+      setFormData((prev) => ({ ...prev, [name]: newData }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value, quantity: 1 }));
+    }
+  };
 
   // serchBar -------------------------------------
 
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
   const handleSearch = (event) => {
     event.preventDefault();
-    fetch(`http://localhost:3000/products/search?name=${searchTerm}&name_category=${searchTerm}&name_brand=${searchTerm}`)
+    fetch(
+      `http://localhost:3000/products/search?name=${searchTerm}&name_category=${searchTerm}&name_brand=${searchTerm}`
+    )
       .then((response) => response.json())
       .then((data) => setSearchResults(data))
       .catch((error) => {
@@ -274,9 +291,9 @@ const isInWishlist = (productId) => {
     setMaxQuantity(maxQuantity);
   };
   // Coupon active -------------------------------------
-const [couponActive, setCouponActive] = useState('');
-  function handleCouponActive(){
-    fetch('http://localhost:3000/products/coupons')
+  const [couponActive, setCouponActive] = useState("");
+  function handleCouponActive() {
+    fetch("http://localhost:3000/products/coupons")
       .then((response) => response.json())
       .then((data) => {
         setCouponActive(data);
@@ -285,7 +302,6 @@ const [couponActive, setCouponActive] = useState('');
         console.error(error);
       });
   }
-
 
   //! validazione product
   const [isProductValid, setIsProductValid] = useState(true);
@@ -297,15 +313,29 @@ const [couponActive, setCouponActive] = useState('');
   //     console.log('isProductValid da global', isProductValid);
   //   }
   // };
-const validateProduct = (selectedSizeId) => {
-  // Controlla anche formData.size per sicurezza
-  if (selectedSizeId === 0 || formData.size === "" || formData.size === 0) {
-    setIsProductValid(false);
-    return false;
-  }
-  setIsProductValid(true);
-  return true;
-};
+  const validateProduct = (selectedSizeId) => {
+    // Controlla anche formData.size per sicurezza
+    if (selectedSizeId === 0 || formData.size === "" || formData.size === 0) {
+      setIsProductValid(false);
+      return false;
+    }
+    setIsProductValid(true);
+    return true;
+  };
+
+  //! chatBot
+  function handleResponse(dataToSend){
+
+    fetch("http://localhost:3000/products/chatbot", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dataToSend),
+    });    
+  };
+
+
   const value = {
     activeDotIndex,
     mostSelled,
@@ -341,11 +371,14 @@ const validateProduct = (selectedSizeId) => {
     validateProduct,
     handleCouponActive,
     couponActive,
-    setIsProductValid,removeFromWishlist,
-        isInWishlist,
-    
+    setIsProductValid,
+    removeFromWishlist,
+    isInWishlist,
+    handleResponse,
   };
-  return <GlobalContext.Provider value={value}>{children}</GlobalContext.Provider>;
+  return (
+    <GlobalContext.Provider value={value}>{children}</GlobalContext.Provider>
+  );
 };
 
 const useGlobalContext = () => useContext(GlobalContext);

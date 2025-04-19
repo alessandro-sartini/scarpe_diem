@@ -366,7 +366,6 @@ function indexOrders(req, res) {
   });
 }
 
-
 function related(req, res) {
   const categoryId = req.query.categoryId;
   const currentSlug = req.query.slug;
@@ -933,14 +932,8 @@ async function chatBot(req, res) {
 
     const totalRes = await new Promise((resolve, reject) => {
       connection.query(sql, (err, response) => {
-        if (err) {
-          return reject({
-            err: 500,
-            message: "Errore query index",
-          });
-        }
+        if (err) return reject({ err: 500, message: "Errore query index" });
 
-        // Integrare immagine
         const result = response.map((i) => ({
           ...i,
           image: req.imagePath + i.image,
@@ -954,13 +947,22 @@ async function chatBot(req, res) {
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const userQuestion = req.body.prompt;
-    if (!userQuestion) {
+    if (!userQuestion)
       return res.status(400).json({ error: "La domanda è obbligatoria." });
-    }
 
-    const fullPrompt = `Sei un esperto di scarpe con anni di esperienza. Rispondi alle seguenti domande in modo esaustivo e professionale, senza divagare dall'argomento delle scarpe.\n\nDomanda: ${userQuestion}, prodotti a cui accedere: ${JSON.stringify(
-      totalRes
-    )}`;
+    const fullPrompt = `Sei ScarpeBot, l'assistente virtuale di ScarpeDiem. Rispondi in modo conciso (max 3 frasi) e professionale SOLO sulle scarpe presenti nel nostro negozio. 
+
+Dati prodotti disponibili: ${JSON.stringify(totalRes)}
+
+Regole:
+1. Fornisci solo informazioni basate sui dati forniti
+2. Se la domanda non riguarda scarpe o prodotti non presenti, rispondi: "Mi dispiace, posso aiutarti solo con informazioni sul nostro catalogo scarpe"
+3. Per ordini sopra 200€ menziona SPEDIZIONE GRATUITA
+4. Formatta i nomi prodotti come link cliccabili: <Link href="http://localhost:5173/product/{slug}" class="product-link">{nome}</Link> sostituendo {slug} e {nome} con i valori corretti
+
+Esempio: "Prova le <a href="http://localhost:5173/sneaker-x" class="product-link">Sneaker X</a> per massimo comfort. Ordini sopra 200€ hanno spedizione gratuita!"
+
+Domanda: ${userQuestion}`;
 
     const result = await model.generateContent(fullPrompt);
     const text = result?.response?.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -968,7 +970,6 @@ async function chatBot(req, res) {
     if (text) {
       res.json({ response: text });
     } else {
-      console.error("Risposta da Gemini:", result?.response);
       res.status(500).json({ error: "Nessuna risposta valida da Gemini." });
     }
   } catch (error) {
@@ -978,8 +979,6 @@ async function chatBot(req, res) {
       .json({ error: "Errore durante la comunicazione con Gemini." });
   }
 }
-
-
 
 export default {
   index,
