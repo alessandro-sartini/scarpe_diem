@@ -251,8 +251,12 @@ export default function Checkout() {
     setIsFattSameOfSped(event.target.checked);
   };
 
-  // totale ordine per riepilogo
-  let orderTotal = 0;
+  const orderTotal = cart.reduce(
+    (total, item) => total + item.price * item.selectedQuantity,
+    0
+  );
+  const shippingCost = orderTotal > 300 ? 0 : 20;
+  const finalTotal = orderTotal + shippingCost;
 
   return (
     <>
@@ -276,9 +280,6 @@ export default function Checkout() {
               const { id, name, selectedQuantity, selectedSize, price } =
                 product;
               const productTotal = price * selectedQuantity;
-              orderTotal = orderTotal + productTotal;
-              Number(orderTotal.toFixed(2));
-
               return (
                 <>
                   <div key={i} className="riepilogo-product-info-box">
@@ -301,9 +302,21 @@ export default function Checkout() {
               );
             })}
           </div>
-          <div className="riepilogo-products-box total-box">
-            <span className="text-big">Totale ordine</span>
-            <span className="text-big total-price">&euro;{orderTotal}</span>
+          <div className="riepilogo-products-box total-box vertical-layout">
+            <div className="riepilogo-product-info">
+              <span>Totale prodotti:</span>
+              <span>€{orderTotal.toFixed(2)}</span>
+            </div>
+            <div className="riepilogo-product-info">
+              <span>Costi di spedizione:</span>
+              <span className={orderTotal > 300 ? "strikethrough" : ""}>
+                €20.00
+              </span>
+            </div>
+            <div className="riepilogo-product-info">
+              <span>Totale ordine:</span>
+              <span>€{finalTotal.toFixed(2)}</span>
+            </div>
           </div>
           {/* spedizione gratuita */}
           <div

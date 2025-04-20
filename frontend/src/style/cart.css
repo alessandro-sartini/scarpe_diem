@@ -110,6 +110,12 @@
   border-radius: 50%;
   background-color: rgba(0, 0, 0, 0.1);
 }
+.disabled {
+  background-color: #d3d3d3; 
+  color: #6c757d; 
+  cursor: not-allowed;
+  opacity: 0.5; 
+}
 
 /* Vai al prodotto WISHLIST */
 .vai-al-prodotto {

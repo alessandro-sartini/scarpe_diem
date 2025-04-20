@@ -1,9 +1,10 @@
-import { useGlobalContext } from '../contexts/GlobalContext';
-import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useGlobalContext } from "../contexts/GlobalContext";
+import { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 export default function Cart() {
-  const { cart, cleanCart, setCartToLocal, removeProductFromCart } = useGlobalContext();
+  const { cart, cleanCart, setCartToLocal, removeProductFromCart } =
+    useGlobalContext();
 
   useEffect(() => {
     setCartToLocal();
@@ -20,7 +21,15 @@ export default function Cart() {
         {/* elenco card carrello */}
         <section className="cart-products-list">
           {cart?.map((product, i) => {
-            const { id, name, image, price, selectedSize, selectedQuantity, size_id } = product;
+            const {
+              id,
+              name,
+              image,
+              price,
+              selectedSize,
+              selectedQuantity,
+              size_id,
+            } = product;
 
             const total = price * selectedQuantity;
 
@@ -47,11 +56,16 @@ export default function Cart() {
 
                   <div className="info-box tot">
                     <span>Totale:</span>
-                    <span className="info-total-price">&euro;{Number(total.toFixed(2))}</span>
+                    <span className="info-total-price">
+                      &euro;{Number(total.toFixed(2))}
+                    </span>
                   </div>
                 </div>
                 {/* Bottone di eliminazione */}
-                <button className="btn-remove-cart-top " onClick={() => removeProductFromCart(id, size_id)}>
+                <button
+                  className="btn-remove-cart-top "
+                  onClick={() => removeProductFromCart(id, size_id)}
+                >
                   X
                 </button>
               </div>
@@ -59,7 +73,12 @@ export default function Cart() {
           })}
         </section>
         <section className="cart-actions">
-          <Link to={'/checkout'} className="btn btn-accent">
+          <Link
+            to={cart.length === 0 ? "#" : "/checkout"}
+            className={`btn btn-accent ${cart.length === 0 ? "disabled" : ""}`}
+            onClick={(e) => cart.length === 0 && e.preventDefault()}
+            // Prevent navigation if cart is empty
+          >
             Riepilogo ordine
           </Link>
           <button className="btn-sec" onClick={() => cleanCart()}>
