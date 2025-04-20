@@ -324,17 +324,57 @@ const GlobalProvider = ({ children }) => {
   };
 
   //! chatBot
-  function handleResponse(dataToSend){
+  // messaggio utente/ bot
+   const [message, setMessage] = useState("");
+   const [messages, setMessages] = useState([
+     { sender: "bot", text: "Ciao! Come posso aiutarti?" },
+   ]);
 
-    fetch("http://localhost:3000/products/chatbot", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dataToSend),
-    });    
-  };
-
+   const [isLoading, setIsLoading] = useState(false);
+ 
+   async function handleResponse(dataToSend) {
+     try {
+       const response = await fetch("http://localhost:3000/products/chatbot", {
+         method: "POST",
+         headers: {
+           "Content-Type": "application/json",
+         },
+         body: JSON.stringify(dataToSend),
+       });
+ 
+       if (!response.ok) {
+         throw new Error("Errore nella risposta del server");
+       }
+ 
+       const data = await response.json();
+       console.log("Risposta del backend:", data); // Debug
+       return data.response || "Risposta non valida dal server";
+     } catch (error) {
+       console.error("Errore nella richiesta al backend:", error);
+       throw new Error("Non riesco a contattare il server, riprova.");
+     }
+   }
+ 
+   const handleSendMessage = async () => {
+     if (message.trim()) {
+       setMessages((prev) => [...prev, { sender: "user", text: message }]);
+       setMessage("");
+       setIsLoading(true);
+       try {
+         const botResponse = await handleResponse({ prompt: message });
+         setMessages((prev) => [...prev, { sender: "bot", text: botResponse }]);
+       } catch (error) {
+         setMessages((prev) => [
+           ...prev,
+           { sender: "bot", text: error.message },
+         ]);
+       } finally {
+         setIsLoading(false);
+       }
+     }
+   };
+ 
+ 
 
   const value = {
     activeDotIndex,
@@ -375,6 +415,11 @@ const GlobalProvider = ({ children }) => {
     removeFromWishlist,
     isInWishlist,
     handleResponse,
+    messages,
+    message,
+    setMessage,
+    isLoading,
+    handleSendMessage,
   };
   return (
     <GlobalContext.Provider value={value}>{children}</GlobalContext.Provider>

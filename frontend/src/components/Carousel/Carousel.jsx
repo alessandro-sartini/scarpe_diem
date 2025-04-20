@@ -1,14 +1,16 @@
-import CarouselSlide from './CarouselSlide';
-import React, { useState, useEffect, useRef } from 'react';
-import { useGlobalContext } from '../../contexts/GlobalContext';
+import React, { useState, useEffect, useRef } from "react";
+import CarouselSlide from "./CarouselSlide";
 
 export default function Carousel({ array, topic }) {
-  let carouselTitle = '';
-  topic === 'bestsellers' ? (carouselTitle = 'I più venduti') : topic === 'related' ? (carouselTitle = 'Potrebbe interessarti...') : (carouselTitle = topic);
-
-  const { activeDotIndex, updateActiveDotIndex } = useGlobalContext();
+  let carouselTitle = "";
+  topic === "bestsellers"
+    ? (carouselTitle = "I più venduti")
+    : topic === "related"
+    ? (carouselTitle = "Potrebbe interessarti...")
+    : (carouselTitle = topic);
 
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [activeDotIndex, setActiveDotIndex] = useState(0);
   const touchStartX = useRef(null);
   const touchMoveX = useRef(null);
 
@@ -16,13 +18,17 @@ export default function Carousel({ array, topic }) {
   const isDesktop = window.innerWidth >= 1280;
 
   const visibleSlides = isTablet ? 2 : isDesktop ? 3 : 1;
-
-  const slideCount = 6;
-  const dotCount = isTablet ? Math.ceil(slideCount / 2) : isDesktop ? Math.ceil(slideCount / 3) : slideCount;
+  // array dinamico a seconda del numero di elementi ricevuti
+  const slideCount = array.length; 
+  const dotCount = isTablet
+    ? Math.ceil(slideCount / 2)
+    : isDesktop
+    ? Math.ceil(slideCount / 3)
+    : slideCount;
 
   const getDotIndex = (index) => {
     let step = 0;
-    if (index % 2 == 0 && index != 0) {
+    if (index % 2 === 0 && index !== 0) {
       step = 1;
     }
 
@@ -35,34 +41,25 @@ export default function Carousel({ array, topic }) {
     }
   };
 
-  // const nextSlide = () => {
-  //   setCurrentIndex((prevIndex) => (prevIndex + 1) % slideCount);
-  // };
   const nextSlide = () => {
     setCurrentIndex((prevIndex) => {
       const newIndex = (prevIndex + 1) % dotCount;
-      updateActiveDotIndex(getDotIndex(newIndex));
-
+      setActiveDotIndex(getDotIndex(newIndex));
       return newIndex;
     });
   };
 
-  // const prevSlide = () => {
-  //   setCurrentIndex((prevIndex) => (prevIndex - 1 + slideCount) % slideCount);
-  // };
-
   const prevSlide = () => {
     setCurrentIndex((prevIndex) => {
-      const newIndex = (prevIndex - 1) % dotCount;
-      updateActiveDotIndex(getDotIndex(newIndex));
-      console.log('newIndex', newIndex);
+      const newIndex = (prevIndex - 1 + dotCount) % dotCount;
+      setActiveDotIndex(getDotIndex(newIndex));
       return newIndex;
     });
   };
 
   const goToSlide = (index) => {
     setCurrentIndex(index);
-    updateActiveDotIndex(getDotIndex(index));
+    setActiveDotIndex(getDotIndex(index));
   };
 
   const handleTouchStart = (e) => {
@@ -94,14 +91,10 @@ export default function Carousel({ array, topic }) {
     };
 
     handleResize();
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
-    return () => window.removeEventListener('resize', handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  useEffect(() => {
-    updateActiveDotIndex(getDotIndex(currentIndex));
-  }, [currentIndex]);
 
   return (
     <div className="carousel">
@@ -109,26 +102,38 @@ export default function Carousel({ array, topic }) {
       <h2 className="h2 display-title">{carouselTitle}</h2>
 
       {/* slides */}
-      <div className="carousel-slider-container" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
-        <div className="carousel-slide-container" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
-          {array?.map((product, i) => {
-            return <CarouselSlide key={i} object={product} />;
-          })}
+      <div
+        className="carousel-slider-container"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div
+          className="carousel-slide-container"
+          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+        >
+          {array?.map((product, i) => (
+            <CarouselSlide key={i} object={product} />
+          ))}
         </div>
       </div>
 
       {/* actions */}
       <div className="carousel-actions-box">
         <button className="carousel-arrow" onClick={prevSlide}>
-          {'<'}
+          {"<"}
         </button>
         <div className="carousel-dots-box">
           {Array.from({ length: dotCount }).map((_, index) => (
-            <div className={`dot ${activeDotIndex === index ? 'active' : ''}`} key={index} onClick={() => goToSlide(index)}></div>
+            <div
+              className={`dot ${activeDotIndex === index ? "active" : ""}`}
+              key={index}
+              onClick={() => goToSlide(index)}
+            ></div>
           ))}
         </div>
         <button className="carousel-arrow" onClick={nextSlide}>
-          {'>'}
+          {">"}
         </button>
       </div>
     </div>

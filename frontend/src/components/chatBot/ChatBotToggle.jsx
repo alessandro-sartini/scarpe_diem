@@ -3,57 +3,22 @@ import parse, { domToReact } from "html-react-parser";
 import { IoMdSend } from "react-icons/io";
 import chatBot from "/graphics/chatBot.jpeg";
 import sendGif from "/graphics/send2.gif";
+import { useGlobalContext } from "../../contexts/GlobalContext";
+import { useLocation } from "react-router-dom";
 export default function ChatBotToggle() {
-  const end = useRef(null);
-  const [isOpen, setIsOpen] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([
-    { sender: "bot", text: "Ciao! Come posso aiutarti?" },
-  ]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { messages, isLoading, handleSendMessage, message, setMessage } =
+    useGlobalContext();
 
-  async function handleResponse(dataToSend) {
-    try {
-      const response = await fetch("http://localhost:3000/products/chatbot", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataToSend),
-      });
-
-      if (!response.ok) {
-        throw new Error("Errore nella risposta del server");
-      }
-
-      const data = await response.json();
-      console.log("Risposta del backend:", data); // Debug
-      return data.response || "Risposta non valida dal server";
-    } catch (error) {
-      console.error("Errore nella richiesta al backend:", error);
-      throw new Error("Non riesco a contattare il server, riprova.");
-    }
+  //! per ottenere url corrente
+  const location = useLocation();
+  // ! nascondi il chatbot in percorsi specifici
+  const hiddenPaths = ["/cart", "/wishlist", "/checkout", "/order-completed"];
+  if (hiddenPaths.includes(location.pathname)) {
+    return null;
   }
 
-  const handleSendMessage = async () => {
-    if (message.trim()) {
-      setMessages((prev) => [...prev, { sender: "user", text: message }]);
-      setMessage("");
-      setIsLoading(true);
-      try {
-        const botResponse = await handleResponse({ prompt: message });
-        setMessages((prev) => [...prev, { sender: "bot", text: botResponse }]);
-      } catch (error) {
-        setMessages((prev) => [
-          ...prev,
-          { sender: "bot", text: error.message },
-        ]);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
-
+  const end = useRef(null);
+  const [isOpen, setIsOpen] = useState(false);
   const scroll = () => {
     end.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -79,7 +44,7 @@ export default function ChatBotToggle() {
     },
   };
   useEffect(() => {
-    console.log("Chatbot is now", isOpen ? "open" : "closed");
+    // console.log("Chatbot is now", isOpen ? "open" : "closed");
   }, [isOpen]);
 
   return (

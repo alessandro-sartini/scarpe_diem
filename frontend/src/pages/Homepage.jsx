@@ -46,7 +46,6 @@ export default function HomePage() {
         {categoryProducts ? <Carousel array={categoryProducts} topic="casual" /> : <p>Categoria non caricata</p>}
         {/* <Carousel array={mostSelled} /> */}
       </section>
-      <ChatBotToggle />
     </main>
   );
 }
