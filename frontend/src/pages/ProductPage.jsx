@@ -200,7 +200,7 @@ export default function ProductPage() {
               >
                 {buttonText}
               </button>
-              <button className="btn-sec" onClick={handleWishlistClick}>
+              <button className="btn btn-sec" onClick={handleWishlistClick}>
                 {isInWishlist(product?.id)
                   ? "Rimuovi dalla Wishlist"
                   : "Aggiungi alla Wishlist"}

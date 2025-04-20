@@ -27,11 +27,7 @@ export default function OrderCompleted() {
           </div>
           <p className="thanks-text">Grazie</p>
           <p className="text-big">per aver completato il tuo ordine.</p>
-          <div className="order-summary">
-            <p>Totale ordine: €{orderTotal.toFixed(2)}</p>
-            <p>Costi di spedizione: €{shippingCost.toFixed(2)}</p>
-            <p>Totale finale: €{finalTotal.toFixed(2)}</p>
-          </div>
+        
         </section>
       </main>
     </>

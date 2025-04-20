@@ -1,6 +1,6 @@
 .chatBotBtn {
   position: fixed;
-  bottom: 20px;
+  bottom: 6rem;
   left: 20px;
   border-radius: 50%;
   z-index: 4;
@@ -25,7 +25,7 @@
 
 .chatBot {
   position: fixed;
-  bottom: 90px; /* Distanza dal pulsante */
+  bottom: 11rem; /* Distanza dal pulsante */
   left: 20px;
   width: 300px;
   height: 400px;
