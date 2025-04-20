@@ -50,7 +50,7 @@ export default function ChatBotToggle() {
   return (
     <>
       <div>
-        <button className="" onClick={() => setIsOpen(!isOpen)}>
+        <button className="bot" onClick={() => setIsOpen(!isOpen)}>
           <img src={chatBot} alt="ScarpeBot" className="chatBotBtn" />
         </button>
       </div>

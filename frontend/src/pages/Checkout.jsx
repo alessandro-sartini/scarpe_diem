@@ -265,7 +265,7 @@ export default function Checkout() {
         <span className="loader"></span>
       </div>{" "}
       <div className="loader-container hidden">
-        <span class="loader"></span>
+        <span className="loader"></span>
       </div>
       <main className="main-checkout">
         <section className="checkout-header">
@@ -282,7 +282,10 @@ export default function Checkout() {
               const productTotal = price * selectedQuantity;
               return (
                 <>
-                  <div key={i} className="riepilogo-product-info-box">
+                  <div
+                    key={id }
+                    className="riepilogo-product-info-box"
+                  >
                     <span className="text-big">{name}</span>
                     <div className="riepilogo-product-info">
                       <span>Taglia</span>
