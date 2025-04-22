@@ -3,7 +3,7 @@
   bottom: 6rem;
   left: 20px;
   border-radius: 50%;
-  z-index: 4;
+  z-index: 5;
   background-color: var(--color-accent-bg);
   color: white;
   width: 60px;

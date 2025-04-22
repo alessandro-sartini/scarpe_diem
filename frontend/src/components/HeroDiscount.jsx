@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { useGlobalContext } from '../contexts/GlobalContext';
-import { Clipboard } from '@phosphor-icons/react';
+import { useEffect, useState } from "react";
+import { useGlobalContext } from "../contexts/GlobalContext";
+import { Clipboard } from "@phosphor-icons/react";
 
 export default function HeroDiscount() {
   const { handleCouponActive, couponActive } = useGlobalContext();
@@ -21,7 +21,7 @@ export default function HeroDiscount() {
         }, 2000);
       })
       .catch((err) => {
-        console.error('Impossibile copiare il testo: ', err);
+        console.error("Impossibile copiare il testo: ", err);
         setCopySuccess(false);
       });
   };
@@ -31,9 +31,9 @@ export default function HeroDiscount() {
       <div className="info">
         <p className="text-big">Risparmia con il coupon del momento</p>
         <div className="discount-code">
-          <button className="code" onClick={handleCopyToClipboard}>
+          <button className="btn code" onClick={handleCopyToClipboard}>
             <Clipboard size={24} weight="duotone" />
-            {copySuccess ? 'Copiato!' : couponActive.code}
+            {copySuccess ? "Copiato!" : couponActive.code}
           </button>
           {/* <button className="btn btn-accent w-fit" onClick={handleCopyToClipboard}>
             {copySuccess ? 'Copiato!' : 'Copia'}

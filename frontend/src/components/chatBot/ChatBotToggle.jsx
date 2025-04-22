@@ -76,7 +76,11 @@ export default function ChatBotToggle() {
               placeholder="Chiedimi qualcosa..."
               disabled={isLoading}
             />
-            <button onClick={handleSendMessage} disabled={isLoading}>
+            <button
+              className="btn"
+              onClick={handleSendMessage}
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <img src={sendGif} alt="Send Gif" className="send-gif" />
               ) : (

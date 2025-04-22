@@ -1,9 +1,18 @@
-import { useGlobalContext } from '../contexts/GlobalContext';
-import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useGlobalContext } from "../contexts/GlobalContext";
+import { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 export default function WishList() {
-  const { wishlist, cleanWishlist, setWishlistToLocal, addToCart, setCartToLocal, selectedSizeId, formData, removeProductFromWishList } = useGlobalContext();
+  const {
+    wishlist,
+    cleanWishlist,
+    setWishlistToLocal,
+    addToCart,
+    setCartToLocal,
+    selectedSizeId,
+    formData,
+    removeProductFromWishList,
+  } = useGlobalContext();
 
   useEffect(() => {
     setWishlistToLocal();
@@ -19,7 +28,16 @@ export default function WishList() {
         {/* elenco card carrello */}
         <section className="cart-products-list">
           {wishlist?.map((product, i) => {
-            const { slug, id, name, image, price, selectedSize, selectedQuantity, size_id } = product;
+            const {
+              slug,
+              id,
+              name,
+              image,
+              price,
+              selectedSize,
+              selectedQuantity,
+              size_id,
+            } = product;
 
             const total = price * selectedQuantity;
 
@@ -45,13 +63,18 @@ export default function WishList() {
                   </div>
                   <div className="info-box">
                     <span>Totale:</span>
-                    <span className="info-total-price">&euro;{Number(total.toFixed(2))}</span>
+                    <span className="info-total-price">
+                      &euro;{Number(total.toFixed(2))}
+                    </span>
                   </div>
                   <Link to={`/product/${slug}`} className="btn btn-accent">
                     VAI AL PRODOTTO
                   </Link>
                 </div>
-                <button className="btn-remove-cart-top " onClick={() => removeProductFromWishList(id, size_id)}>
+                <button
+                  className="btn btn-remove-cart-top"
+                  onClick={() => removeProductFromWishList(id, size_id)}
+                >
                   X
                 </button>
               </div>
@@ -63,7 +86,7 @@ export default function WishList() {
           {/* <button className="btn-accent" onClick={() => addToCart(product, selectedSizeId, formData.quantity)}>
             Svuota Wishlist
           </button> */}
-          <button className="btn-sec" onClick={() => cleanWishlist()}>
+          <button className="btn btn-sec" onClick={() => cleanWishlist()}>
             Svuota Wishlist
           </button>
         </section>

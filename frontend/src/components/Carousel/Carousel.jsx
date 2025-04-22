@@ -19,7 +19,7 @@ export default function Carousel({ array, topic }) {
 
   const visibleSlides = isTablet ? 2 : isDesktop ? 3 : 1;
   // array dinamico a seconda del numero di elementi ricevuti
-  const slideCount = array.length; 
+  const slideCount = array.length;
   const dotCount = isTablet
     ? Math.ceil(slideCount / 2)
     : isDesktop
@@ -120,7 +120,7 @@ export default function Carousel({ array, topic }) {
 
       {/* actions */}
       <div className="carousel-actions-box">
-        <button className="carousel-arrow" onClick={prevSlide}>
+        <button className="btn carousel-arrow" onClick={prevSlide}>
           {"<"}
         </button>
         <div className="carousel-dots-box">
@@ -132,7 +132,7 @@ export default function Carousel({ array, topic }) {
             ></div>
           ))}
         </div>
-        <button className="carousel-arrow" onClick={nextSlide}>
+        <button className="btn carousel-arrow" onClick={nextSlide}>
           {">"}
         </button>
       </div>

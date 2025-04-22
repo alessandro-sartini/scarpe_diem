@@ -82,7 +82,6 @@ export default function ProductPage() {
     }, 3000);
   };
 
-
   const handleWishlistClick = () => {
     if (isInWishlist(product.id)) {
       removeFromWishlist(product.id);
@@ -105,7 +104,6 @@ export default function ProductPage() {
           </div>
 
           <div className="product-form-box">
-
             <label className="text-big">Taglia</label>
             <div className="size-selector">
               {product?.sizes.map((size) => {
@@ -129,8 +127,7 @@ export default function ProductPage() {
                         if (isOutOfStock) return;
                         const selectedSizeNumber = e.target.value;
                         const selectedSize = product?.sizes.find(
-                          (sizeObj) =>
-                            sizeObj.size_number == selectedSizeNumber
+                          (sizeObj) => sizeObj.size_number == selectedSizeNumber
                         );
 
                         if (!selectedSizeNumber) {
@@ -148,7 +145,6 @@ export default function ProductPage() {
                     />
                     {size.size_number}
                   </label>
-
                 );
               })}
             </div>
@@ -189,7 +185,7 @@ export default function ProductPage() {
 
             <div className="card-actions-box buttons-container">
               <button
-                className={buttonClasses}
+                className={`btn ${buttonClasses}`}
                 onClick={() => {
                   if (validateProduct(selectedSizeId)) {
                     handleClick();
@@ -222,4 +218,3 @@ export default function ProductPage() {
     </main>
   );
 }
-

@@ -63,7 +63,7 @@ export default function Cart() {
                 </div>
                 {/* Bottone di eliminazione */}
                 <button
-                  className="btn-remove-cart-top "
+                  className="btn btn-remove-cart-top "
                   onClick={() => removeProductFromCart(id, size_id)}
                 >
                   X
@@ -81,7 +81,7 @@ export default function Cart() {
           >
             Riepilogo ordine
           </Link>
-          <button className="btn-sec" onClick={() => cleanCart()}>
+          <button className="btn btn-sec" onClick={() => cleanCart()}>
             Svuota Carrello
           </button>
         </section>
