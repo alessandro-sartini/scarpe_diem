@@ -19,7 +19,7 @@
   justify-content: start;
   align-items: stretch;
   gap: 48px;
-  background-image: url('graphics/hero-bg.png');
+  background-image: url("graphics/hero-bg.png");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -73,7 +73,7 @@
   overflow: hidden;
   height: 60vh;
   position: relative;
-  background-image: url('graphics/hero-bg.png');
+  background-image: url("graphics/hero-bg.png");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -677,5 +677,55 @@ header .cart-icon-total {
   }
   .carousel-slide {
     flex: 0 0 33.333%;
+  }
+}
+
+/* smartphone portrait -------------------------------------------- */
+@media screen and (max-width: 576px) {
+  .header-container {
+    min-height: auto;
+    padding: 1rem;
+  }
+
+  header {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  header .menu-box {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  header .logo-box {
+    width: 100%;
+    text-align: center;
+  }
+
+  header .icons-box {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .nav-item {
+    font-size: 1rem;
+    padding-inline: 0.5rem;
+    padding-block: 0.25rem;
+  }
+
+  .header-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .cart-icon-total {
+    top: -5px;
+    right: -5px;
+    font-size: 0.75rem;
   }
 }

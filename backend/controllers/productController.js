@@ -680,7 +680,7 @@ function checkout(req, res) {
             return completaQuery();
           }
           const disponibile = results[0].quantity;
-          if (disponibile < prodotto.quantita) {
+          if (disponibile <= prodotto.quantita) {
             errori = true;
             return completaQuery();
           }
@@ -928,7 +928,7 @@ function checkout(req, res) {
 
 async function chatBot(req, res) {
   try {
-    const sql = "SELECT * FROM products";
+    const sql = "SELECT slug,name,description,price FROM products";
 
     const totalRes = await new Promise((resolve, reject) => {
       connection.query(sql, (err, response) => {
