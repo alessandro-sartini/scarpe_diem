@@ -20,9 +20,10 @@ export default function Cart() {
         </section>
         {/* elenco card carrello */}
         <section className="cart-products-list">
-          {cart?.map((product, i) => {
+          {cart?.map((product) => {
             const {
               id,
+              slug,
               name,
               image,
               price,
@@ -34,7 +35,7 @@ export default function Cart() {
             const total = price * selectedQuantity;
 
             return (
-              <div key={i} className="cart-card">
+              <Link to={`/product/${slug}`} key={slug} className="cart-card">
                 <figure className="cart-card-img">
                   <img src={image} alt={name} />
                 </figure>
@@ -64,11 +65,14 @@ export default function Cart() {
                 {/* Bottone di eliminazione */}
                 <button
                   className="btn btn-remove-cart-top "
-                  onClick={() => removeProductFromCart(id, size_id)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    removeProductFromCart(id, size_id);
+                  }}
                 >
                   X
                 </button>
-              </div>
+              </Link>
             );
           })}
         </section>

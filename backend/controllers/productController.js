@@ -677,11 +677,17 @@ function checkout(req, res) {
         (err, results) => {
           if (err || results.length === 0) {
             errori = true;
+            console.error(
+              `Errore nella verifica della quantità per il prodotto ID: ${prodotto.id}, Size ID: ${prodotto.size_id}`
+            );
             return completaQuery();
           }
           const disponibile = results[0].quantity;
-          if (disponibile <= prodotto.quantita) {
+          if (disponibile < prodotto.quantita) {
             errori = true;
+            console.error(
+              `Quantità insufficiente per il prodotto ID: ${prodotto.id}, Size ID: ${prodotto.size_id}. Disponibile: ${disponibile}, Richiesta: ${prodotto.quantita}`
+            );
             return completaQuery();
           }
           let sqlUpdate =
@@ -690,7 +696,12 @@ function checkout(req, res) {
             sqlUpdate,
             [prodotto.quantita, prodotto.id, prodotto.size_id],
             (err) => {
-              if (err) errori = true;
+              if (err) {
+                errori = true;
+                console.error(
+                  `Errore nell'aggiornamento della quantità per il prodotto ID: ${prodotto.id}, Size ID: ${prodotto.size_id}`
+                );
+              }
               completaQuery();
             }
           );
@@ -700,12 +711,6 @@ function checkout(req, res) {
 
     function completaQuery() {
       queryCompletate++;
-      console.log(
-        "completaQuery chiamata:",
-        queryCompletate,
-        "/",
-        dati.carrello.length
-      );
       if (queryCompletate === dati.carrello.length) {
         if (errori) {
           return connection.rollback(() => {
@@ -715,9 +720,6 @@ function checkout(req, res) {
             });
           });
         }
-        console.log(
-          "Tutte le quantità aggiornate correttamente, procedo con commit"
-        );
         connection.commit(async (err) => {
           if (err) {
             return connection.rollback(() => {
@@ -727,7 +729,6 @@ function checkout(req, res) {
             });
           }
           try {
-            // Passa couponCode e sconto alla funzione email
             await inviaEmailConferma(
               dati.email,
               dati.nome,
