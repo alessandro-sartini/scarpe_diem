@@ -1,8 +1,11 @@
 import connection from "../data/db.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+import stripePackage from "stripe";
+
 import nodemailer from "nodemailer";
 
+const stripe = stripePackage(process.env.STRIPE_SECRET_KEY);
 // function -> index
 function index(req, res) {
   const sql = "SELECT * FROM products";
@@ -542,6 +545,45 @@ function checkout(req, res) {
   for (let i = 0; i < dati.carrello.length; i++) {
     totale += dati.carrello[i].prezzo * dati.carrello[i].quantita;
   }
+
+  async function checkout(req, res) {
+  const dati = req.body;
+
+  // Validazione del carrello
+  if (!dati.carrello || dati.carrello.length === 0) {
+    return res.status(400).json({ error: "Il carrello è vuoto o non valido" });
+  }
+
+  // Creazione degli elementi per Stripe
+  const lineItems = dati.carrello.map((prodotto) => ({
+    price_data: {
+      currency: "eur",
+      product_data: {
+        name: prodotto.nome || `Prodotto ${prodotto.id}`,
+      },
+      unit_amount: Math.round(prodotto.prezzo * 100),
+      //! Converti in centesimi
+    },
+    quantity: prodotto.quantita,
+  }));
+
+  try {
+    // Creazione della sessione di pagamento
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: lineItems,
+      mode: "payment",
+      success_url: `${process.env.FRONTEND_URL}/order-completed`,
+      cancel_url: `${process.env.FRONTEND_URL}/checkout`,
+    });
+
+    // Rispondi con l'ID della sessione
+    res.json({ sessionId: session.id });
+  } catch (error) {
+    console.error("Errore Stripe:", error);
+    res.status(500).json({ error: "Errore nella creazione della sessione di pagamento" });
+  }
+}
 
   // Inizia raccolta dei nomi prodotti
   const prodottiConNomi = [...dati.carrello];
