@@ -546,45 +546,7 @@ function checkout(req, res) {
     totale += dati.carrello[i].prezzo * dati.carrello[i].quantita;
   }
 
-  async function checkout(req, res) {
-  const dati = req.body;
-
-  // Validazione del carrello
-  if (!dati.carrello || dati.carrello.length === 0) {
-    return res.status(400).json({ error: "Il carrello è vuoto o non valido" });
-  }
-
-  // Creazione degli elementi per Stripe
-  const lineItems = dati.carrello.map((prodotto) => ({
-    price_data: {
-      currency: "eur",
-      product_data: {
-        name: prodotto.nome || `Prodotto ${prodotto.id}`,
-      },
-      unit_amount: Math.round(prodotto.prezzo * 100),
-      //! Converti in centesimi
-    },
-    quantity: prodotto.quantita,
-  }));
-
-  try {
-    // Creazione della sessione di pagamento
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      line_items: lineItems,
-      mode: "payment",
-      success_url: `${process.env.FRONTEND_URL}/order-completed`,
-      cancel_url: `${process.env.FRONTEND_URL}/checkout`,
-    });
-
-    // Rispondi con l'ID della sessione
-    res.json({ sessionId: session.id });
-  } catch (error) {
-    console.error("Errore Stripe:", error);
-    res.status(500).json({ error: "Errore nella creazione della sessione di pagamento" });
-  }
-}
-
+ 
   // Inizia raccolta dei nomi prodotti
   const prodottiConNomi = [...dati.carrello];
   let prodottiProcessati = 0;
@@ -598,7 +560,8 @@ function checkout(req, res) {
       if (!err && results.length > 0) {
         prodottiConNomi[i].nome = results[0].name;
       } else {
-        prodottiConNomi[i].nome = `Prodotto ${prodotto.id}`; // fallback
+        prodottiConNomi[i].nome = `Prodotto ${prodotto.id}`;
+        // fallback
       }
 
       prodottiProcessati++;
@@ -968,6 +931,44 @@ function checkout(req, res) {
     }
   }
 }
+async function createStripeSession(req, res) {
+  const dati = req.body;
+
+  // Validazione del carrello
+  if (!dati.carrello || !Array.isArray(dati.carrello) || dati.carrello.length === 0) {
+    return res.status(400).json({ error: "Il carrello è vuoto o non valido" });
+  }
+
+  // Creazione degli elementi per Stripe
+  const lineItems = dati.carrello.map((prodotto) => ({
+    price_data: {
+      currency: "eur",
+      product_data: {
+        name: prodotto.nome || `Prodotto ${prodotto.id}`,
+      },
+      unit_amount: Math.round(prodotto.prezzo * 100),
+      // Converti in centesimi
+    },
+    quantity: prodotto.quantita,
+  }));
+
+  try {
+    // Creazione della sessione di pagamento
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: lineItems,
+      mode: "payment",
+      success_url: `${process.env.FRONTEND_URL}/order-completed?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL}/checkout`,
+    });
+
+    // Rispondi con l'ID della sessione
+    res.json({ sessionId: session.id });
+  } catch (error) {
+    console.error("Errore Stripe:", error);
+    res.status(500).json({ error: "Errore nella creazione della sessione di pagamento" });
+  }
+}
 
 async function chatBot(req, res) {
   try {
@@ -1039,5 +1040,6 @@ export default {
   search,
   getCoupon,
   checkout,
+  createStripeSession,
   chatBot,
 };

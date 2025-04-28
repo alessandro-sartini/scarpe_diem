@@ -42,8 +42,8 @@ router.post("/chatBot", productController.chatBot);
 //Rotta per creazione nuovo ordine
 router.post("/orders", productController.store);
 
-// // pagamento 
-// router.post("/complete-order", productController.createStripeSession);
+// Rotta per creare una sessione di pagamento con Stripe
+router.post("/create-stripe-session",productController. createStripeSession);
 
 //Rotta per store della Pivot
 router.post("/product_order", productController.storePivot);
